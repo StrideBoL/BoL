@@ -1,4 +1,3 @@
---|Script Version|--
 local ScriptVersion = "1.1"
 
 --  _   _                          __  __      _        _  --
