@@ -1,4 +1,4 @@
-local ScriptVersion = "1.1"
+local ScriptVersion = "1.0"
 
 --  _   _                          __  __      _        _  --
 -- | | | |                        |  \/  |    | |      | | -- 
@@ -23,6 +23,7 @@ if myHero.charName ~= "Mordekaiser" then return end
 --|Automatic On-Load Script|--
 function OnLoad()
 	Update(ScriptVersion)
+	print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Currently using </font><font color=\"#FB3636\">v"..ScriptVersion.."</font><font color=\"#BDBDBD\">!</font>")
 end
 
 --|Automatic Update Check|--
