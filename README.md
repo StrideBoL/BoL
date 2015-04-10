@@ -1,2 +1,2 @@
-# BoL
-Stride's BoL Scripts
+# Stride's Bot of Legends Compilation
+Currently Developing: Heavy Metal Mordekaiser
