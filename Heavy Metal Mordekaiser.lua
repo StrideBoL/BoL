@@ -1,5 +1,5 @@
 --|Script Version|--
-local ScriptVersion = 1.0
+local ScriptVersion = "1.1"
 
 --  _   _                          __  __      _        _  --
 -- | | | |                        |  \/  |    | |      | | -- 
@@ -33,7 +33,8 @@ class 'Update'
 	
 		--Update Variables--
 		self.version     = version
-		self.scriptLink  = "https://raw.githubusercontent.com/SkeemBoL/BoL/master/Katarina%20Rework.lua"
+		self.scriptLink  = "/StrideBoL/BoL/master/Heavy%20Metal%20Mordekaiser.lua"
+		self.downloadPath = "https://raw.github.com/"..self.scriptLink
 		self.path        = SCRIPT_PATH .. _ENV.FILE_NAME
 		
 		--Booleans--
@@ -45,19 +46,20 @@ class 'Update'
 	
 	function Update:Tick()
 		if not self.ranUpdater then
-			local ServerData = GetWebResult("raw.github.com", UPDATE_PATH)
- 	           local onlineVersion = tonumber(data)
- 	           if onlineVersion and onlineVersion > ScriptVersion then
- 	           		print("<font color=\"#FF0000\">[Nintendo Katarina]:</font> <font color=\"#FFFFFF\">Found Update: </font> <font color=\"#FF0000\">"..KatarinaVersion.." > "..onlineVersion.." Updating... Don't F9!!</font>")
+			local ServerData = GetWebResult("raw.github.com", self.scriptLink)
+ 	        if ServerData then
+				local ServerVersion = string.match(ServerData, "ScriptVersion = \"%d.%d\"")
+				if ServerVersion and ScriptVersion ~= ServerVersion then
+					print("<font color=\"#000000\">[</font><font color=\"#424242\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"##585858\">Found Latest Version </font> <font color=\"#FB3636\">v"..ServerVersion.."</font>")
  	           		self.needUpdate = true
- 	           end
- 	        end)
+				end
+			end
 			self.ranUpdater = true
 		end
 		if self.needUpdate then
-			DownloadFile(self.scriptLink, self.path, function()
+			DownloadFile(self.downloadPath, self.path, function()
                 if FileExist(self.path) then
-                    print("<font color=\"#FF0000\">[Nintendo Katarina]:</font> <font color=\"#FFFFFF\">updated! Double F9 to use new version!</font>")
+                    print("<font color=\"#000000\">[</font><font color=\"#424242\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"##585858\">Script Updated! Press F9 twice to reload the new version!</font>")
                 end
             end)
             self.needUpdate = false
