@@ -29,7 +29,6 @@ end
 -- Credits to @Skeem for Template --
 class 'Update'
 	function Update:__init(version)
-	
 		--Update Variables--
 		self.version     = version
 		self.scriptLink  = "/StrideBoL/BoL/master/Heavy%20Metal%20Mordekaiser.lua"
@@ -47,9 +46,11 @@ class 'Update'
 		if not self.ranUpdater then
 			local ServerData = GetWebResult("raw.github.com", self.scriptLink)
  	        if ServerData then
-				local ServerVersion = string.match(ServerData, "ScriptVersion = \"%d.%d\"")
+				local ServerVersion = string.match(ServerData, "local ScriptVersion = \"%d.%d\"")
+				local NewVersion = string.match(ServerVersion and ServerVersion or "", "%d.%d")
+				print(NewVersion)
 				if ServerVersion and ScriptVersion ~= ServerVersion then
-					print("<font color=\"#000000\">[</font><font color=\"#424242\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"##585858\">Found Latest Version </font> <font color=\"#FB3636\">v"..ServerVersion.."</font>")
+					print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Found Latest Version </font><font color=\"#FB3636\">v"..NewVersion.."</font><font color=\"#BDBDBD\">. Updating...</font>")
  	           		self.needUpdate = true
 				end
 			end
@@ -58,7 +59,7 @@ class 'Update'
 		if self.needUpdate then
 			DownloadFile(self.downloadPath, self.path, function()
                 if FileExist(self.path) then
-                    print("<font color=\"#000000\">[</font><font color=\"#424242\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"##585858\">Script Updated! Press F9 twice to reload the new version!</font>")
+                    print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Script Updated! Press F9 twice to reload the new version!</font>")
                 end
             end)
             self.needUpdate = false
