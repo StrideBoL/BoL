@@ -20,14 +20,17 @@ local ScriptVersion = "1.0"
 --|Champion Check|--
 if myHero.charName ~= "Mordekaiser" then return end 
 
+--|SxOrbWalk|--
+require 'SxOrbWalk'
+
 --|Automatic On-Load Script|--
 function OnLoad()
 	Update(ScriptVersion)
+	Mordekaiser = Mordekaiser()
 	print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Currently using </font><font color=\"#FB3636\">v"..ScriptVersion.."</font><font color=\"#BDBDBD\">!</font>")
 end
 
 --|Automatic Update Check|--
--- Credits to @Skeem for Template --
 class 'Update'
 	function Update:__init(version)
 		--Update Variables--
@@ -65,3 +68,135 @@ class 'Update'
             self.needUpdate = false
 		end
 	end
+-- Credits to @Skeem for Template --
+--|End of Autoupdate|--
+
+--|Heavy Metal Mordekaiser|--
+class 'Mordekaiser'
+	function Mordekaiser:__init()
+		--Spells--
+		self.Spells = {
+			Q = Spells(_Q, 250, 'Mace of Spades', 'non'),
+			W =	Spells(_W, 750, 'Creeping Death', 'self'),
+			E =	Spells(_E, 630, 'Siphon of Destruction', 'all'),
+			R =	Spells(_R, 850, 'Children of the Grave', 'all')
+		}
+		
+		--Other Inits--
+		self:Menu()
+		
+		AddTickCallback(function() self:Tick() end)
+		AddDrawCallback(function() self:Draw() end)
+	end
+	
+	--Tick--
+	function Mordekaiser:Tick()
+	
+	end
+	
+	--Menu--
+	function Mordekaiser:Menu()
+		self.menu = scriptConfig("Heavy Metal Mordekaiser v"..ScriptVersion, "Heavy Metal Mordekaiser")
+			self.menu:addParam("DraA", "Draw Auto Attack Range", SCRIPT_PARAM_ONOFF, true)
+			--Q--
+			self.menu:addSubMenu("Q: "..self.Spells.Q.Name.." Settings", "Q")	
+				self.menu.Q:addParam("HarQ", "Harass with "..self.Spells.Q.Name, SCRIPT_PARAM_ONOFF, true)
+				self.menu.Q:addParam("LasQ", "Lasthit with "..self.Spells.Q.Name, SCRIPT_PARAM_ONOFF, true)
+				self.menu.Q:addParam("ComQ", "Combo with "..self.Spells.Q.Name, SCRIPT_PARAM_ONOFF, true)
+			--W--
+			self.menu:addSubMenu("W: "..self.Spells.W.Name.." Settings", "W")	
+				self.menu.W:addParam("DraW", "Draw "..self.Spells.W.Name.." Range", SCRIPT_PARAM_ONOFF, true)
+				self.menu.W:addParam("ComW", "Use "..self.Spells.W.Name.." during Combo", SCRIPT_PARAM_ONOFF, true)
+			--E--
+			self.menu:addSubMenu("E: "..self.Spells.E.Name.." Settings", "E")	
+				self.menu.E:addParam("DraE", "Draw "..self.Spells.E.Name.." Range", SCRIPT_PARAM_ONOFF, true)
+				self.menu.E:addParam("HarE", "Harass with "..self.Spells.E.Name, SCRIPT_PARAM_ONOFF, true)
+				self.menu.E:addParam("LasE", "Lasthit with "..self.Spells.E.Name, SCRIPT_PARAM_ONOFF, true)
+				self.menu.E:addParam("ComE", "Combo with "..self.Spells.E.Name, SCRIPT_PARAM_ONOFF, true)
+			--R--
+			self.menu:addSubMenu("R: "..self.Spells.R.Name.." Settings", "R")	
+				self.menu.R:addParam("DraR", "Draw "..self.Spells.R.Name.." Range", SCRIPT_PARAM_ONOFF, true)
+				self.menu.R:addParam("KillR", "Use "..self.Spells.R.Name.." when killable", SCRIPT_PARAM_ONOFF, true)
+	end
+	
+	--Draw **Thanks Skeem for Funcs--
+	function Mordekaiser:Draw()
+		if myHero.dead then return end
+		if self.menu.DraA then
+			self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.Q:Range(), RGB(0,0,0))
+		end
+		if self.menu.W.DraW then
+			if self.Spells.W:Ready() then
+				self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.W:Range(), RGB(204,0,204))
+			else
+				self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.W:Range(), RGB(255,153,255))
+			end
+		end
+		if self.menu.E.DraE then
+			if self.Spells.E:Ready() then
+				self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.E:Range(), RGB(17,240,61))
+			else
+				self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.E:Range(), RGB(247,17,40))
+			end
+		end
+		if self.menu.R.DraR then
+			if self.Spells.R:Ready() then
+				self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.R:Range(), RGB(17,240,61))
+			else
+				self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.R:Range(), RGB(247,17,40))
+			end
+		end
+	end
+	
+	function Mordekaiser:DrawCircle(x, y, z, radius, color)
+		local vPos1 = Vector(x, y, z)
+		local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+		local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+		local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+		
+		if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
+			self:DrawCircleNextLvl(x, y, z, radius, 1, color, 300) 
+		end
+	end
+	
+	function Mordekaiser:DrawCircleNextLvl(x, y, z, radius, width, color, chordlength)
+		radius = radius or 300
+		quality = math.max(8, self:Round(180 / math.deg((math.asin((chordlength / (2 * radius)))))))
+		quality = 2 * math.pi / quality
+		radius = radius * .92
+		local points = {}
+		
+		for theta = 0, 2 * math.pi + quality, quality do
+			local c = WorldToScreen(D3DXVECTOR3(x + radius * math.cos(theta), y, z - radius * math.sin(theta)))
+			points[#points + 1] = D3DXVECTOR2(c.x, c.y)
+		end
+		DrawLines2(points, width or 1, color or 4294967295)
+	end
+
+	function Mordekaiser:Round(number)
+		if number >= 0 then 
+			return math.floor(number+.5) 
+		else 
+			return math.ceil(number-.5) 
+		end
+	end
+	
+--|Spells Configuration|--	
+class 'Spells'
+	function Spells:__init(slot, range, name, type)
+		self.Slot = slot
+		self.range = range
+		self.Name = name
+		self.Type = type
+	end
+	
+	function Spells:Ready()
+		return myHero:CanUseSpell(self.Slot) == READY
+	end
+	
+	function Spells:Range()
+		return self.range
+	end
+
+	
+
