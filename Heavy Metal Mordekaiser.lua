@@ -49,7 +49,7 @@ class 'Update'
  	        if ServerData then
 				local ServerVersion = string.match(ServerData, "local ScriptVersion = \"%d.%d\"")
 				local NewVersion = string.match(ServerVersion and ServerVersion or "", "%d.%d")
-				if NewVersion and NewVersion ~= ServerVersion then
+				if NewVersion and NewVersion ~= ScriptVersion then
 					print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Found Latest Version </font><font color=\"#FB3636\">v"..NewVersion.."</font><font color=\"#BDBDBD\">. Updating...</font>")
  	           		self.needUpdate = true
 				end
