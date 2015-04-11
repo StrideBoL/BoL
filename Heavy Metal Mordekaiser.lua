@@ -76,14 +76,18 @@ class 'Mordekaiser'
 	function Mordekaiser:__init()
 		--Spells--
 		self.Spells = {
-			Q = Spells(_Q, 250, 'Mace of Spades', 'non'),
+			Q = Spells(_Q, 250, 'Mace of Spades', 'none'),
 			W =	Spells(_W, 750, 'Creeping Death', 'self'),
-			E =	Spells(_E, 630, 'Siphon of Destruction', 'all'),
-			R =	Spells(_R, 850, 'Children of the Grave', 'all')
+			E =	Spells(_E, 625, 'Siphon of Destruction', 'none'), 
+			--Actual range is 630 but making it 625 to ensure hit--
+			R =	Spells(_R, 850, 'Children of the Grave', 'targ')
 		}
 		
 		--Other Inits--
 		self:Menu()
+		
+		--Other Stuff--
+		self.target = nil
 		
 		AddTickCallback(function() self:Tick() end)
 		AddDrawCallback(function() self:Draw() end)
@@ -91,7 +95,27 @@ class 'Mordekaiser'
 	
 	--Tick--
 	function Mordekaiser:Tick()
+		self.tar = self:GetTarget()
+		if self.tar then
+			if self.menu.Combo then
+				self:Combo(self.tar)
+			elseif self.menu.Harass then
+				self:Harass(self.tar)
+			end
+		
+		end
+	end
 	
+	--Get Target--
+	function Mordekaiser:GetTarget()
+		self.Target:update()
+        if _G.MMA_Target and _G.MMA_Target.type == myHero.type then 
+        	return _G.MMA_Target 
+	    elseif _G.AutoCarry and  _G.AutoCarry.Attack_Crosshair and _G.AutoCarry.Attack_Crosshair.target and _G.AutoCarry.Attack_Crosshair.target.type == myHero.type then 
+	    	return _G.AutoCarry.Attack_Crosshair.target 
+	    elseif self.Target.target and ValidTarget(self.Target.target) then
+	    	return self.Target.target
+	    end
 	end
 	
 	--Menu--
@@ -99,32 +123,63 @@ class 'Mordekaiser'
 		self.menu = scriptConfig("Heavy Metal Mordekaiser v"..ScriptVersion, "Heavy Metal Mordekaiser")
 			self.menu:addParam("DraA", "Draw Auto Attack Range", SCRIPT_PARAM_ONOFF, true)
 			--Q--
-			self.menu:addSubMenu("Q: "..self.Spells.Q.Name.." Settings", "Q")	
-				self.menu.Q:addParam("HarQ", "Harass with "..self.Spells.Q.Name, SCRIPT_PARAM_ONOFF, true)
+			self.menu:addSubMenu(">> Q: "..self.Spells.Q.Name.." Settings", "Q")	
 				self.menu.Q:addParam("LasQ", "Lasthit with "..self.Spells.Q.Name, SCRIPT_PARAM_ONOFF, true)
 				self.menu.Q:addParam("ComQ", "Combo with "..self.Spells.Q.Name, SCRIPT_PARAM_ONOFF, true)
 			--W--
-			self.menu:addSubMenu("W: "..self.Spells.W.Name.." Settings", "W")	
+			self.menu:addSubMenu(">> W: "..self.Spells.W.Name.." Settings", "W")	
 				self.menu.W:addParam("DraW", "Draw "..self.Spells.W.Name.." Range", SCRIPT_PARAM_ONOFF, true)
 				self.menu.W:addParam("ComW", "Use "..self.Spells.W.Name.." during Combo", SCRIPT_PARAM_ONOFF, true)
 			--E--
-			self.menu:addSubMenu("E: "..self.Spells.E.Name.." Settings", "E")	
+			self.menu:addSubMenu(">> E: "..self.Spells.E.Name.." Settings", "E")	
 				self.menu.E:addParam("DraE", "Draw "..self.Spells.E.Name.." Range", SCRIPT_PARAM_ONOFF, true)
 				self.menu.E:addParam("HarE", "Harass with "..self.Spells.E.Name, SCRIPT_PARAM_ONOFF, true)
 				self.menu.E:addParam("LasE", "Lasthit with "..self.Spells.E.Name, SCRIPT_PARAM_ONOFF, true)
 				self.menu.E:addParam("ComE", "Combo with "..self.Spells.E.Name, SCRIPT_PARAM_ONOFF, true)
 			--R--
-			self.menu:addSubMenu("R: "..self.Spells.R.Name.." Settings", "R")	
+			self.menu:addSubMenu(">> R: "..self.Spells.R.Name.." Settings", "R")	
 				self.menu.R:addParam("DraR", "Draw "..self.Spells.R.Name.." Range", SCRIPT_PARAM_ONOFF, true)
 				self.menu.R:addParam("KillR", "Use "..self.Spells.R.Name.." when killable", SCRIPT_PARAM_ONOFF, true)
+			--OrbWalk--
+			self.menu:addSubMenu('>> Hotkey Settings', 'orbwalk')
+				SxOrb:LoadToMenu(self.menu.orbwalk, true)
+				SxOrb:RegisterHotKey('fight',     self.menu, 'Combo')
+				SxOrb:RegisterHotKey('harass',    self.menu, 'Harass')
+				SxOrb:RegisterHotKey('laneclear', self.menu, 'LaneC')
+				SxOrb:RegisterHotKey('lasthit',   self.menu, 'LastHit')
+			--Activate Keys--
+			self.menu:addParam('Combo', 'Full Combo Toggle', SCRIPT_PARAM_ONKEYDOWN, false, GetKey(' '))
+			self.menu:addParam('Harass', 'Harass Toggle', SCRIPT_PARAM_ONKEYDOWN, false, GetKey('X'))
+			self.menu:addParam('LaneC', 'Laneclear Toggle', SCRIPT_PARAM_ONKEYDOWN, false, GetKey('C'))
+
+			--Side Menu
+			self.menu:permaShow('Combo')
+			self.menu:permaShow('Harass')
+			self.menu:permaShow('LaneC')
+			
+			--Target Selector--
+			self.Target = TargetSelector(TARGET_LESS_CAST, self.Spells.E.range, DAMAGE_MAGIC, true)
+				self.Target.name = 'Mordekaiser'
+				self.menu:addTS(self.Target)
+	end
+	
+	--Combo--
+	function Mordekaiser:Combo(target)
+		if self.menu.Q.ComQ then
+			self.Spells.Q:Cast(target)
+		end
+	end
+	
+	--Harass--
+	function Mordekaiser:Harass(target)
+		if self.menu.E.HarE then
+			self.Spells.E:Cast(target)
+		end
 	end
 	
 	--Draw **Thanks Skeem for Funcs--
 	function Mordekaiser:Draw()
 		if myHero.dead then return end
-		if self.menu.DraA then
-			self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.Q:Range(), RGB(0,0,0))
-		end
 		if self.menu.W.DraW then
 			if self.Spells.W:Ready() then
 				self:DrawCircle(myHero.x, myHero.y, myHero.z, self.Spells.W:Range(), RGB(204,0,204))
@@ -188,6 +243,18 @@ class 'Spells'
 		self.range = range
 		self.Name = name
 		self.Type = type
+	end
+	
+	function Spells:Cast(unit)
+		if self:Ready() and GetDistance(unit) <= self.range then
+			if self.Type == 'targ' then
+				CastSpell(self.Slot, unit)
+			elseif self.Type == 'none' then
+				CastSpell(self.Slot, unit)
+			elseif self.Type == 'self' then
+				CastSpell(self.Slot, myHero)
+			end
+		end
 	end
 	
 	function Spells:Ready()
