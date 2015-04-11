@@ -1,4 +1,4 @@
-local ScriptVersion = "1.1"
+local ScriptVersion = "1.0"
 
 --  _   _                          __  __      _        _  --
 -- | | | |                        |  \/  |    | |      | | -- 
@@ -50,7 +50,7 @@ class 'Update'
 				local ServerVersion = string.match(ServerData, "local ScriptVersion = \"%d.%d\"")
 				local NewVersion = string.match(ServerVersion and ServerVersion or "", "%d.%d")
 				if NewVersion and NewVersion ~= ScriptVersion then
-					print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Found Latest Version </font><font color=\"#FB3636\">v"..NewVersion.."</font><font color=\"#BDBDBD\">. Updating...</font>")
+					print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Found latest version </font><font color=\"#FB3636\">v"..NewVersion.."</font><font color=\"#BDBDBD\">. Updating...</font>")
  	           		self.needUpdate = true
 				end
 			end
@@ -59,7 +59,7 @@ class 'Update'
 		if self.needUpdate then
 			DownloadFile(self.downloadPath, self.path, function()
                 if FileExist(self.path) then
-                    print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Script Updated! Press F9 twice to reload the new version!</font>")
+                    print("<font color=\"#000000\">[</font><font color=\"#A4A4A4\">Heavy Metal Mordekaiser</font><font color=\"#000000\">]</font> <font color=\"#BDBDBD\">Script updated! Press F9 twice to reload the new version!</font>")
                 end
             end)
             self.needUpdate = false
